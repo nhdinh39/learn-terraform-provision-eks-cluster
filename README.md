@@ -18,9 +18,9 @@ aws iam create-policy \
     --policy-document file://iam_policy.json
 
 eksctl create iamserviceaccount \
-  --cluster=education-eks-7bmQ7zpv \
+  --cluster=education-eks-MpC8kusT \
   --namespace=kube-system \
-  --name=aws-load-balancer-controller \
+  --name=aws-load-balancer-controller-education-eks \
   --role-name AmazonEKSLoadBalancerControllerRole \
   --attach-policy-arn=arn:aws:iam::261093894796:policy/AWSLoadBalancerControllerIAMPolicy \
   --approve
@@ -44,3 +44,27 @@ kubectl get deployment -n kube-system aws-load-balancer-controller
 
 #### Ref:
 https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html
+https://registry.terraform.io/modules/cloudposse/eks-iam-role/aws/latest
+
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "arn:aws:iam::261093894796:oidc-provider/oidc.eks.ap-southeast-1.amazonaws.com/id/E0C5357DF783356C868BE8492D8A3C36"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+                "StringEquals": {
+                    "oidc.eks.ap-southeast-1.amazonaws.com/id/E0C5357DF783356C868BE8492D8A3C36:aud": "sts.amazonaws.com"
+                },
+                "StringLike": {
+                    "oidc.eks.ap-southeast-1.amazonaws.com/id/E0C5357DF783356C868BE8492D8A3C36:sub": "system:serviceaccount:kube-system:aws-load-balancer-controller-dinhnh1"
+                }
+            }
+        }
+    ]
+}
